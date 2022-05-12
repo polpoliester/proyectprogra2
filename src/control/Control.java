@@ -5,7 +5,13 @@
  */
 package control;
 import interfaces.IPersistencia;
+import interfazUsuario.DlgLibro;
+import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import objetosnegocio_241400.Libro;
+import persistencia.PersistenciaListas;
 
 /**
  *
@@ -33,8 +39,33 @@ public class Control {
      * capturar los datos del libro
      * @return Regresa true si se pudo agregar el libro, false en caso contrario
      */
-    public void agregarLibro(JFrame Frame){
-        
+    public boolean agregarLibro(JFrame frame){
+        Libro libro, bLibro;
+        StringBuffer respuesta = new StringBuffer("");
+        DlgLibro dlgLibro;
+        List<Libro> listaLibros;
+        DefaultComboBoxModel<Libro> LibrosComboBoxModel;
+        //Captura la clave del Libro
+        String Isbn = JOptionPane.showInputDialog(frame, "Clave del libro:",
+                "Agregar libro",
+                JOptionPane.QUESTION_MESSAGE);
+        //Si el usuario presiono el boton Cancelar
+        if(Isbn == null)
+            return false;
+        //Crea un objeto Libro con solo la clave
+        libro = new Libro(Isbn);
+        try {
+            //Obten la cancion del catalogo de Libros
+            bLibro = persistencia.obten(libro);
+        }
+        catch (Exception e) {
+            //Si ocurrio un error al leer del catalogo de libros,
+            //despliega mensaje de error
+            JOptionPane.showMessageDialog(frame, e.getMessage(), "Error!!.",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return false;
     }
     
     public void actualizarLibro(){
@@ -73,8 +104,22 @@ public class Control {
         
     }
     
-    public Tabla getTablaLibros(){
-        return null;
+    public Tabla getTablaLibros(JFrame frame) {
+        List<Libro> listaCanciones;
+        try {
+            //Obtiene la lista de libros
+            listaCanciones = persistencia.consultarLibros();
+        }
+        catch (Exception e) {
+            //Si ocurrio un error al obtener la lista de la base de datos,
+            //despliega mensaje de error
+            JOptionPane.showMessageDialog(frame, e.getMessage(), "Error!!.",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        //Regresa el objeto Tabla con todas los libros
+        return new Tabla("Lista de Libros",
+                conversiones.librosTableModel(listaCanciones)); 
     }
     
     public Tabla getTablaLibrosAutor(){
